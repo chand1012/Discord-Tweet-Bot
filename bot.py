@@ -1,4 +1,4 @@
-from json import dumps, loads
+from json import loads
 from random import choice
 
 import discord
@@ -32,10 +32,13 @@ api = tweepy.API(auth)
 
 def get_tweet(person):
     some_tweets = api.user_timeline(screen_name=person, count=200)
+    #some_tweets = tweepy.Cursor(api.user_timeline, screen_name=person, count=200, include_entities=True)
     valid_tweets = []
     for tweet in some_tweets:
-        if (not 'http' in tweet.text) and (not 'RT' in tweet.text) and not tweet.startswith('@'):
-            valid_tweets += [[tweet.text, tweet.created_at]]
+        if (not 'http' in tweet.text) and (not 'RT' in tweet.text):
+            if 'Wendys' in person or not tweet.text.startswith('@'):
+                valid_tweets += [[tweet.text, tweet.created_at]]
+            
     print(person)
     return choice(valid_tweets)
 
