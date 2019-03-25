@@ -4,9 +4,6 @@ from random import choice
 import discord
 import tweepy
 
-from lib import get_keys, get_list
-
-
 def get_keys(filename="keys.json"):
     parsed = None
     with open(filename) as keyfile:
