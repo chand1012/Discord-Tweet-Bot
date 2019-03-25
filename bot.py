@@ -1,8 +1,24 @@
-import tweepy
-import discord
-from lib import get_keys, get_list
+from json import dumps, loads
 from random import choice
-from json import dumps
+
+import discord
+import tweepy
+
+from lib import get_keys, get_list
+
+
+def get_keys(filename="keys.json"):
+    parsed = None
+    with open(filename) as keyfile:
+        raw = keyfile.read()
+        parsed = loads(raw)
+    return parsed
+   
+def get_list(filename="list.txt"):
+    clist = []
+    with open(filename) as listfile:
+        clist = listfile.readlines()
+    return clist
 
 keys = get_keys()
 people = get_list()
@@ -21,9 +37,9 @@ def get_tweet(person):
     some_tweets = api.user_timeline(screen_name=person, count=200)
     valid_tweets = []
     for tweet in some_tweets:
-        if (not 'http' in tweet.text) and (not 'RT' in tweet.text) and (not '@' in tweet.text):
-            valid_tweets += [tweet.text]
-            
+        if (not 'http' in tweet.text) and (not 'RT' in tweet.text) and not tweet.startswith('@'):
+            valid_tweets += [[tweet.text, tweet.created_at]]
+    print(person)
     return choice(valid_tweets)
 
 client = discord.Client()
@@ -38,12 +54,13 @@ async def on_message(message):
         if recv[7:] is '':
             person = choice(people)
             tweet = get_tweet(person)
-            msg = "From {}:\n{}".format(person, tweet)
+            msg = "From {} at {}:\n{}".format(person, tweet[1], tweet[0])
             print("Posting tweet....")
             print("Author: {}".format(person))
-            print(tweet)
+            print(tweet[0])
+            print("From: {}".format(tweet[1]))
             print("------")
-            await client.send_message(channel, content=msg, tts=True)
+            await client.send_message(channel, content=msg, tts=False)
         else:
             msg = None
             count = 0
@@ -53,14 +70,19 @@ async def on_message(message):
                 count+=1
                 tweet = get_tweet(person)
                 if not tweet==None:
-                    msg = "From {}:\n{}".format(person, tweet)
+                    msg = "From {} at {}:\n{}".format(person, tweet[1], tweet[0])
+                    print("Posting tweet....")
+                    print("Author: {}".format(person))
+                    print(tweet[0])
+                    print("From: {}".format(tweet[1]))
+                    print("------")
                     break
                 if count>=10:
                     print("Cannot find acceptable tweet for user {}".format(person))
                     print("------")
                     msg = "Cannot find acceptable tweet. Please try another user."
                     break
-            await client.send_message(channel, content=msg, tts=True)
+            await client.send_message(channel, content=msg, tts=False)
 
 @client.event
 async def on_ready():
