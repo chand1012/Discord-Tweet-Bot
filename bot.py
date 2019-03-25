@@ -1,6 +1,6 @@
 import tweepy
 import discord
-from lib import *
+from lib import get_keys, get_list
 from random import choice
 from json import dumps
 
