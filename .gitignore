@@ -103,3 +103,4 @@ ENV/
 #other
 keys.json
 test.py
+.vscode/

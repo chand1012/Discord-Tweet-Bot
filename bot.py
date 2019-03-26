@@ -30,11 +30,10 @@ auth = tweepy.OAuthHandler(tconsumer, tsecret)
 auth.set_access_token(taccess, tsaccess)
 api = tweepy.API(auth)
 
-def get_tweet(person):
-    some_tweets = api.user_timeline(screen_name=person, count=200)
-    #some_tweets = tweepy.Cursor(api.user_timeline, screen_name=person, count=200, include_entities=True)
+def get_tweet(person): # this uses the cursor so now I can get images
+    some_tweets = tweepy.Cursor(api.user_timeline, screen_name=person, count=200, include_entities=True)
     valid_tweets = []
-    for tweet in some_tweets:
+    for tweet in some_tweets.items():
         if (not 'http' in tweet.text) and (not 'RT' in tweet.text):
             if 'Wendys' in person or not tweet.text.startswith('@'):
                 valid_tweets += [[tweet.text, tweet.created_at]]
@@ -63,25 +62,18 @@ async def on_message(message):
             await client.send_message(channel, content=msg, tts=False)
         else:
             msg = None
-            count = 0
             person = recv[7:]
-    
-            while True:
-                count+=1
+            try:
                 tweet = get_tweet(person)
-                if not tweet==None:
-                    msg = "From {} at {}:\n{}".format(person, tweet[1], tweet[0])
-                    print("Posting tweet....")
-                    print("Author: {}".format(person))
-                    print(tweet[0])
-                    print("From: {}".format(tweet[1]))
-                    print("------")
-                    break
-                if count>=10:
-                    print("Cannot find acceptable tweet for user {}".format(person))
-                    print("------")
-                    msg = "Cannot find acceptable tweet. Please try another user."
-                    break
+                msg = "From {} at {}:\n{}".format(person, tweet[1], tweet[0])
+                print("Posting tweet....")
+                print("Author: {}".format(person))
+                print(tweet[0])
+                print("From: {}".format(tweet[1]))
+                print("------")
+            except Exception as e:
+                print(e)
+                msg = "Something went wrong, either that username doesn't exist or I couldn't find a tweet that was acceptable."
             await client.send_message(channel, content=msg, tts=False)
 
 @client.event
