@@ -36,7 +36,7 @@ def get_tweet(person): # this uses the cursor so now I can get images
     for tweet in some_tweets.items():
         if (not 'http' in tweet.text) and (not 'RT' in tweet.text):
             if 'Wendys' in person or not tweet.text.startswith('@'):
-                valid_tweets += [[tweet.text, tweet.created_at]]
+                valid_tweets += [[tweet.text, tweet.created_at, None]]
             
     print(person)
     return choice(valid_tweets)
