@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from json import loads
 from random import choice
 
@@ -35,10 +36,10 @@ def get_tweet(person): # this uses the cursor so now I can get images
     valid_tweets = []
     for tweet in some_tweets.items():
         if (not 'http' in tweet.text) and (not 'RT' in tweet.text):
-            if 'Wendys' in person or not tweet.text.startswith('@'):
+            if not tweet.text.startswith('@'):
                 valid_tweets += [[tweet.text, tweet.created_at, None]]
             
-    print(person)
+    #print(person)
     return choice(valid_tweets)
 
 client = discord.Client()
@@ -48,7 +49,7 @@ async def on_message(message):
     recv = message.content
     channel = message.channel
     if message.author == client.user:
-        pass
+        return
     if recv.startswith("!tweet"):
         if recv[7:] is '':
             person = choice(people)
@@ -60,6 +61,7 @@ async def on_message(message):
             print("From: {}".format(tweet[1]))
             print("------")
             await client.send_message(channel, content=msg, tts=False)
+            return
         else:
             msg = None
             person = recv[7:]
@@ -75,6 +77,7 @@ async def on_message(message):
                 print(e)
                 msg = "Something went wrong, either that username doesn't exist or I couldn't find a tweet that was acceptable."
             await client.send_message(channel, content=msg, tts=False)
+            return
 
 @client.event
 async def on_ready():
